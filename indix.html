@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>meimine-shop-phone</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #00ffcc;
+        }
+
+        .language-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .column {
+            flex: 1;
+            margin: 10px;
+            min-width: 250px;
+        }
+
+        .product {
+            background-color: #1a1a1a;
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 350px;
+        }
+
+        .product:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00ffcc;
+        }
+
+        .product img {
+            max-width: 80%; 
+            height: auto;
+            border-radius: 5px;
+            margin: 0 auto; 
+            cursor: pointer; 
+        }
+
+        .call-button, .whatsapp-button, .detail-button {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            transition: background-color 0.3s, transform 0.3s;
+            margin: 5px;
+        }
+
+        .call-button {
+            background-color: #00ffcc;
+            color: #121212;
+        }
+
+        .call-button:hover {
+            background-color: #009999;
+            transform: scale(1.1);
+        }
+
+        .whatsapp-button {
+            background-color: #25D366;
+            color: #ffffff;
+        }
+
+        .whatsapp-button:hover {
+            background-color: #20B358;
+            transform: scale(1.1);
+        }
+
+        .detail-button {
+            background-color: #ffcc00;
+            color: #121212;
+        }
+
+        .detail-button:hover {
+            background-color: #e6b800;
+            transform: scale(1.1);
+        }
+
+        /* Styles pour la modale d'images */
+        .modal, .detail-modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center; 
+            align-items: center; 
+        }
+
+        .modal img, .detail-modal img {
+            max-width: 80%; 
+            height: auto; 
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .product-details {
+            color: #ffffff;
+            padding: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="title">Bienvenue</h1>
+        <p>meimine-shop-phone</p>
+        <div class="language-switch" onclick="toggleLanguage()">
+            🇫🇷 / 🇸🇦
+        </div>
+    </header>
+    <main>
+        <div class="column" id="left-column"></div>
+        <div class="column" id="center-column"></div>
+        <div class="column" id="right-column"></div>
+    </main>
+    <div class="modal" id="image-modal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img id="modal-image" src="" alt="">
+    </div>
+    <div class="detail-modal" id="detail-modal">
+        <span class="close-modal" onclick="closeDetailModal()">&times;</span>
+        <div class="product-details" id="product-details"></div>
+    </div>
+    <footer>
+        <p id="footer-text">&copy; 2024 meimine-shop-phone</p>
+    </footer>
+    <script>
+        const products = [
+            { name_fr: "Produit 1", name_ar: "المنتج 1", price: "10€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 1." },
+            { name_fr: "Produit 2", name_ar: "المنتج 2", price: "15€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 2." },
+            { name_fr: "Produit 3", name_ar: "المنتج 3", price: "20€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 3." },
+            { name_fr: "Produit 4", name_ar: "المنتج 4", price: "12€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 4." },
+            { name_fr: "Produit 5", name_ar: "المنتج 5", price: "18€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 5." },
+            { name_fr: "Produit 6", name_ar: "المنتج 6", price: "22€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 6." },
+            { name_fr: "Produit 7", name_ar: "المنتج 7", price: "25€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 7." },
+            { name_fr: "Produit 8", name_ar: "المنتج 8", price: "30€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 8." },
+            { name_fr: "Produit 9", name_ar: "المنتج 9", price: "35€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 9." },
+            { name_fr: "Produit 10", name_ar: "المنتج 10", price: "40€", phone: "+33123456789", whatsapp: "+33123456789", images: ["https://via.placeholder.com/150", "https://via.placeholder.com/151", "https://via.placeholder.com/152"], details: "Détails sur le produit 10." },
+        ];
+
+        const leftColumn = document.getElementById('left-column');
+        const centerColumn = document.getElementById('center-column');
+        const rightColumn = document.getElementById('right-column');
+        const modal = document.getElementById('image-modal');
+        const detailModal = document.getElementById('detail-modal');
+        const modalImage = document.getElementById('modal-image');
+        const productDetails = document.getElementById('product-details');
+
+        let language = 'fr';
+
+        function loadProducts() {
+            leftColumn.innerHTML = '';
+            centerColumn.innerHTML = '';
+            rightColumn.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product');
+                productDiv.innerHTML = `
+                    <img src="${product.images[0]}" onclick="openModal(${index})" alt="${language === 'fr' ? product.name_fr : product.name_ar}">
+                    <h2>${language === 'fr' ? product.name_fr : product.name_ar}</h2>
+                    <p>Prix: ${product.price}</p>
+                    <div style="flex-grow: 1;"></div>
+                    <div>
+                        <button class="call-button" onclick="callNumber('${product.phone}')">${language === 'fr' ? 'Appeler' : 'اتصل'}</button>
+                        <button class="whatsapp-button" onclick="openWhatsApp('${product.whatsapp}', '${product.images[0]}')">WhatsApp</button>
+                        <button class="detail-button" onclick="openDetailModal(${index})">Détails</button>
+                    </div>
+                `;
+
+                if (index % 3 === 0) {
+                    leftColumn.appendChild(productDiv);
+                } else if (index % 3 === 1) {
+                    centerColumn.appendChild(productDiv);
+                } else {
+                    rightColumn.appendChild(productDiv);
+                }
+            });
+        }
+
+        function toggleLanguage() {
+            language = language === 'fr' ? 'ar' : 'fr';
+            document.getElementById('title').innerText = language === 'fr' ? 'Bienvenue' : 'مرحبًا بكم';
+            loadProducts(); 
+        }
+
+        function callNumber(phoneNumber) {
+            window.location.href = `tel:${phoneNumber}`;
+        }
+
+        function openWhatsApp(whatsappNumber, imageUrl) {
+            const message = `Bonjour, je suis intéressé par ce produit : ${imageUrl}`;
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+        }
+
+        function openModal(index) {
+            const product = products[index];
+            modalImage.src = product.images[0];
+            modal.style.display = 'flex';
+            let currentImageIndex = 0;
+
+            const changeImage = () => {
+                currentImageIndex = (currentImageIndex + 1) % product.images.length;
+                modalImage.src = product.images[currentImageIndex];
+            };
+
+            const imageInterval = setInterval(changeImage, 3000); // Changer d'image toutes les 3 secondes
+
+            modalImage.onclick = function() {
+                clearInterval(imageInterval); // Arrête le changement d'image
+                modal.style.display = 'none'; // Ferme la modale
+            };
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function openDetailModal(index) {
+            const product = products[index];
+            productDetails.innerHTML = `
+                <h2>${language === 'fr' ? product.name_fr : product.name_ar}</h2>
+                <p>Prix: ${product.price}</p>
+                <p>${language === 'fr' ? product.details : product.details}</p>
+            `;
+            detailModal.style.display = 'flex';
+        }
+
+        function closeDetailModal() {
+            detailModal.style.display = 'none';
+        }
+
+        // Initialisation
+        loadProducts();
+    </script>
+</body>
+</html>
